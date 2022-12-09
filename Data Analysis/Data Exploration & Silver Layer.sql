@@ -1,6 +1,7 @@
 -- Databricks notebook source
 -- MAGIC %md
--- MAGIC ### Data Exploration and Ingestion to the next Layer
+-- MAGIC ## Question 2 & 3: Doco and Profile tables in Silver Layer
+-- MAGIC ## Question 4: Design Table structure
 
 -- COMMAND ----------
 
@@ -71,6 +72,14 @@ WHERE BRCH_ZIPCODE IS NOT NULL;
 -- MAGIC #Contains 1 day's worth of data, transactional Table
 -- MAGIC #Ready to be joined with dimensional tables.
 -- MAGIC #Hash distributed table on Position_DT as it should be equally skewed.
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS silver.customer;
+
+CREATE TABLE silver.customer AS
+SELECT * FROM bronze.customer
+
 
 -- COMMAND ----------
 
