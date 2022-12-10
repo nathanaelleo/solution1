@@ -31,7 +31,7 @@ SELECT DISTINCT * FROM silver.product_ref
 WHERE VARIABLE = 'TAKAFUL_CODE'
 */
 
---Normally Fact Tables should not have Desc. Since Desc is in the table, join is not necessary
+--Normally Fact Tables should not have Description. Since Description is in the table, join is not necessary
 
 DROP TABLE IF EXISTS gold.Question5_a;
 
@@ -55,13 +55,56 @@ FROM silver.insurance
 GROUP BY PRODUCT
 
 
-
-
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC ##Question 5: 
 -- MAGIC ###b. Loans summary by branch, product type and sub-type
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS gold.Question5_b;
+
+CREATE TABLE gold.Question5_b AS 
+
+WITH main_table as (
+SELECT BRANCH_CODE, PRODUCT_CODE, SUBPRODUCT_CODE, SUM(LOAN_AMOUNT) AS TOTAL_LOAN_AMOUNT
+FROM silver.loan
+GROUP BY PRODUCT_CODE, SUBPRODUCT_CODE, BRANCH_CODE
+ORDER BY BRANCH_CODE
+)
+SELECT T2.DESC1, T2.DESC2, T1.BRANCH_CODE, T1.TOTAL_LOAN_AMOUNT
+FROM main_table T1
+
+LEFT JOIN
+(SELECT CODE1, CODE2, DESC1, DESC2 FROM silver.product_ref
+WHERE VARIABLE = 'LOAN_CODE') T2 
+ON T1.SUBPRODUCT_CODE = T2.CODE2
+
+--REMOVE ZEROES MAYBE, UNLESS HISTORICAL RECORDS ARE NECESSARY
+--IDENTIFY THE MISSING BRANCH CODE
+
+
+-- COMMAND ----------
+
+SELECT DISTINCT *, if(CODE1 = LEFT(CODE2,6), 'yes', 'no') as Codependency FROM silver.product_ref
+where variable = 'LOAN_CODE' and
+if(CODE1 = LEFT(CODE2,6), 'yes', 'no') = 'no'
+;
+
+--34 Distinct 
+
+SELECT if(product_code = LEFT(subproduct_code,6), 'yes', 'no') from silver.loan
+where if(product_code = LEFT(subproduct_code,6), 'yes', 'no') = 'no';
+
+
+select * from silver.product_ref
+--10 Types of product code
+--33 Types of sub prod
+
+--Does Code2 depend on Code1?
+
+
 
 -- COMMAND ----------
 
