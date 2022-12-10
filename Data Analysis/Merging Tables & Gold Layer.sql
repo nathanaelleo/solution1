@@ -87,6 +87,8 @@ ON T1.SUBPRODUCT_CODE = T2.CODE2
 
 -- COMMAND ----------
 
+--Does Code2 depend on Code1?
+
 SELECT DISTINCT *, if(CODE1 = LEFT(CODE2,6), 'yes', 'no') as Codependency FROM silver.product_ref
 where variable = 'LOAN_CODE' and
 if(CODE1 = LEFT(CODE2,6), 'yes', 'no') = 'no'
@@ -97,15 +99,10 @@ if(CODE1 = LEFT(CODE2,6), 'yes', 'no') = 'no'
 SELECT if(product_code = LEFT(subproduct_code,6), 'yes', 'no') from silver.loan
 where if(product_code = LEFT(subproduct_code,6), 'yes', 'no') = 'no';
 
-
 select * from silver.product_ref
 --10 Types of product code
 --33 Types of sub prod
 
---Does Code2 depend on Code1?
 
-
-
--- COMMAND ----------
 
 
