@@ -21,35 +21,50 @@ CREATE TABLE silver.agent_ref AS SELECT * FROM bronze.agent_ref;
 
 -- COMMAND ----------
 
---lat & long -> useful for GIS MAP visual
+/*lat & long -> useful for GIS MAP visual
 --Zip Code is missing a leading Zero -> Probably because of Excel source
 
-/*Data check*/
-SELECT * FROM bronze.branch_ref
-WHERE BRCH_ZIPCODE IS NOT NULL;
-
 --Branch 12003 has missing address.
+--'KIOSK UTC BSN' has 2 locations
 
-/*
 SELECT brch_code, count(1) FROM bronze.branch_ref
 Group by 1
-*/
 
-/*
+SELECT brch_name, count(1) FROM bronze.branch_ref
+WHERE BRCH_ZIPCODE IS NOT NULL
+GROUP BY brch_name
+Order by count(1)
+
+select * from bronze.branch_ref
+where brch_name = 'KIOSK UTC BSN' and BRCH_ZIPCODE IS NOT NULL
+
 SELECT * FROM bronze.branch_ref
 where brch_code = '40011'
-*/
+
 
 --select distinct brch_code FROM bronze.branch_ref
 --391 unique records
 --It should be safe to exclude data that do not have ZipCode, 
 --However, A question to the Data Engineer to explain why such data is like this would be necessary and how we can fix from source.
 
-/*Similar to Select "*" INTO tbl from ... where... */
-/*Dimension Table*/
-DROP TABLE IF EXISTS silver.branch_ref;
+Similar to Select "*" INTO tbl from ... where... */
 
-CREATE TABLE silver.branch_ref AS SELECT * FROM bronze.branch_ref
+DROP TABLE IF EXISTS silver.branch_ref;
+CREATE TABLE silver.branch_ref AS 
+SELECT BRCH_CODE
+,BRCH_NAME
+,BRCH_ADD1
+,BRCH_ADD2
+,BRCH_ADD3
+,BRCH_ADD4
+,BRCH_CITY
+,BRCH_STATE
+,CASE WHEN LEN(CAST(BRCH_ZIPCODE AS VARCHAR(255))) = 6 then '0' + CAST(BRCH_ZIPCODE AS VARCHAR(255))
+ELSE CAST(BRCH_ZIPCODE AS VARCHAR(255)) END AS BRCH_ZIPCODE
+,BRCH_PHONE
+,BRCH_FAX
+,BRCH_LAT
+,BRCH_LON FROM bronze.branch_ref
 WHERE BRCH_ZIPCODE IS NOT NULL;
 
 -- COMMAND ----------
@@ -66,7 +81,6 @@ WHERE BRCH_ZIPCODE IS NOT NULL;
 -- MAGIC   .saveAsTable("silver.credit_card")\
 -- MAGIC 
 -- MAGIC #table names have invalid characters
--- MAGIC #somehow SQL can't solve this issue. Need to revisit
 -- MAGIC 
 -- MAGIC #Data seems perfect, no null values
 -- MAGIC #Contains 1 day's worth of data, transactional Table
@@ -242,6 +256,7 @@ FROM bronze.loan
 --LOAN = 0? PAID OFF RIGHT?, create 2 approach to this.
 --18765712684609156 MISSING BRANCH
 --INT_RATE HAS THE .00000..4 ISSUE. WILL AFFECT INTEREST RATES IF USED TO CALCULATE. WILL NEED TO CHECK WITH FINANCE
+--Should have Branch_Code as Numeric, not the name
 
 
 -- COMMAND ----------
@@ -293,4 +308,10 @@ POLICY_NO
 FROM bronze.takaful;
 
 --payment frequency can be removed for this case study
+
+
+-- COMMAND ----------
+
+
+
 
