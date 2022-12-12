@@ -69,6 +69,10 @@ WHERE BRCH_ZIPCODE IS NOT NULL;
 
 -- COMMAND ----------
 
+SELECT * FROM bronze.branch_ref
+
+-- COMMAND ----------
+
 -- MAGIC %python
 -- MAGIC spark.read.table("bronze.credit_card")\
 -- MAGIC   .withColumnRenamed("P/S", "P_S")\
@@ -308,10 +312,4 @@ POLICY_NO
 FROM bronze.takaful;
 
 --payment frequency can be removed for this case study
-
-
--- COMMAND ----------
-
-
-
 
